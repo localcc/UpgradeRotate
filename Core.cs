@@ -4,7 +4,7 @@ using Il2CppInterop.Runtime;
 using MelonLoader;
 using UnityEngine.InputSystem;
 
-[assembly: MelonInfo(typeof(UpgradeRotate.Core), "UpgradeRotate", "1.0.0", "localcc", null)]
+[assembly: MelonInfo(typeof(UpgradeRotate.Core), "UpgradeRotate", "1.0.1", "localcc", null)]
 [assembly: MelonGame("Pigeons at Play", "Mycopunk")]
 
 namespace UpgradeRotate
