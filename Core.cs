@@ -2,7 +2,6 @@
 using Il2Cpp;
 using Il2CppInterop.Runtime;
 using MelonLoader;
-using UnityEngine;
 using UnityEngine.InputSystem;
 
 [assembly: MelonInfo(typeof(UpgradeRotate.Core), "UpgradeRotate", "1.0.0", "localcc", null)]
@@ -12,8 +11,6 @@ namespace UpgradeRotate
 {
     public class Core : MelonMod
     {
-        public static Core Instance = null;
-
         private InputActionMap _upgradeActionMap;
         private InputAction _rotateLeft;
         private InputAction _rotateRight;
@@ -37,30 +34,19 @@ namespace UpgradeRotate
             _resetRotation.AddBinding("<Gamepad>/buttonWest");
             _resetRotation.AddBinding("<Keyboard>/r");
 
-            var leftAction = new Action(() =>
-            { 
-                Rotate(1);
-            });
+            var leftAction = new Action(() => { Rotate(1); });
             _rotateLeft.add_performed(leftAction.FromNoParam<InputAction.CallbackContext>());
-            var rightAction = new Action(() =>
-            {
-                Rotate(-1);
-            });
+            var rightAction = new Action(() => { Rotate(-1); });
             _rotateRight.add_performed(rightAction.FromNoParam<InputAction.CallbackContext>());
-            var resetAction = new Action(() =>
-            {
-                ResetRotation();
-            });
+            var resetAction = new Action(() => { ResetRotation(); });
             _resetRotation.add_performed(resetAction.FromNoParam<InputAction.CallbackContext>());
-
-            Instance = this;
 
             LoggerInstance.Msg("Initialized!");
         }
 
         public override void OnSceneWasInitialized(int buildIndex, string sceneName)
         {
-            _gearDetailsWindow = MonoBehaviour.FindObjectOfType<GearDetailsWindow>();
+            _gearDetailsWindow = UnityEngine.Object.FindObjectOfType<GearDetailsWindow>();
         }
 
         public void OnGearDetailsWindowOpened(GearDetailsWindow instance)
@@ -78,16 +64,8 @@ namespace UpgradeRotate
         private void Rotate(int direction)
         {
             if (_gearDetailsWindow?.SelectedUpgrade == null) return;
+            var newRotation = (_gearDetailsWindow.selectedUpgradeRotation + direction + 6) % 6;
 
-            const byte MaxRotation = 4;
-
-            var selectedRotation = _gearDetailsWindow.selectedUpgradeRotation;
-            if (selectedRotation == 0 && direction < 0)
-            {
-                selectedRotation = MaxRotation;
-            }
-
-            var newRotation = (selectedRotation + direction) % MaxRotation;
             _gearDetailsWindow.SetSelectedUpgradeRotation(newRotation);
         }
 
@@ -105,14 +83,14 @@ namespace UpgradeRotate
         [HarmonyPatch(nameof(GearDetailsWindow.OnOpen))]
         static void OnOpen(GearDetailsWindow __instance)
         {
-            Core.Instance.OnGearDetailsWindowOpened(__instance);
+            Melon<Core>.Instance.OnGearDetailsWindowOpened(__instance);
         }
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(GearDetailsWindow.OnCloseCallback))]
         static void OnCloseCallback(GearDetailsWindow __instance)
         {
-            Core.Instance.OnGearDetailsWindowClosed(__instance);
+            Melon<Core>.Instance.OnGearDetailsWindowClosed(__instance);
         }
     }
 
